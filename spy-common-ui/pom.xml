@@ -66,7 +66,7 @@
 		<dependency>
 			<groupId>org.fxmisc.richtext</groupId>
 			<artifactId>richtextfx</artifactId>
-			<version>0.11.3</version>
+			<version>0.11.6</version>
 		</dependency>
 
 		<dependency>
