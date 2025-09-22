@@ -21,8 +21,12 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		
+		<jaxb.version>2.3.0</jaxb.version>
+		<jaxb.runtime.version>2.3.0</jaxb.runtime.version>
 		<jaxb2.plugin.version>0.12.1</jaxb2.plugin.version>
 		<jaxb2.basics.version>0.11.1</jaxb2.basics.version>
+		<javafx.version>21.0.3</javafx.version>
+		<javafx.platform>${os.detected.name}</javafx.platform>
 	</properties>
 	
 	<repositories>
@@ -56,6 +60,41 @@
 			<artifactId>jfxutils</artifactId>
 			<version>1.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-base</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-graphics</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
+		</dependency>
 		
 		<!--=== TEST === -->
 	
@@ -68,10 +107,54 @@
 		
 	</dependencies>
   
-  	<build>
-		
+	<build>
+
+		<extensions>
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.7.0</version>
+			</extension>
+		</extensions>
+
 		<plugins>
-			
+		
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>set-system-properties</goal>
+						</goals>
+						<configuration>
+							<properties>
+								<property>
+									<name>com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize</name>
+									<value>true</value>
+								</property>
+							</properties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+					<compilerArgs>
+						<arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED</arg>
+						<arg>--add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ALL-UNNAMED</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+
 			<!-- Generate JAXB clases -->			
 	        <plugin>
 	            <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -121,6 +204,31 @@
 						<groupId>org.jvnet.jaxb2_commons</groupId>
 						<artifactId>jaxb2-value-constructor</artifactId>
 						<version>3.0</version>
+					</dependency>
+	    			<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>${jaxb.version}</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.activation</groupId>
+						<artifactId>javax.activation</artifactId>
+						<version>1.2.0</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-impl</artifactId>
+						<version>${jaxb.runtime.version}</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-core</artifactId>
+						<version>${jaxb.runtime.version}</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-xjc</artifactId>
+						<version>${jaxb.runtime.version}</version>
 					</dependency>
 			    </dependencies>	    		    
 			</plugin> 

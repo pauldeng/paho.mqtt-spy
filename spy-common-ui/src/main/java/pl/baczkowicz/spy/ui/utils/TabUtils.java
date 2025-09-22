@@ -31,9 +31,6 @@ import javafx.stage.WindowEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabController;
 
-import com.sun.javafx.scene.control.behavior.TabPaneBehavior;
-import com.sun.javafx.scene.control.skin.TabPaneSkin;
-
 /**
  * Tab pane utilities.
  */
@@ -46,23 +43,18 @@ public class TabUtils
 	 */
 	public static void requestClose(final Tab tab)
 	{
-		TabPaneBehavior behavior = getBehavior(tab);
-		if (behavior.canCloseTab(tab))
+		final TabPane tabPane = tab.getTabPane();
+		if (tabPane == null || !tab.isClosable())
 		{
-			behavior.closeTab(tab);
+			return;
 		}
-	}
 
-	/**
-	 * Gets the behavior object for the given tab.
-	 * 
-	 * @param tab The tab for which to get the behaviour
-	 *  
-	 * @return TabPaneBehavior
-	 */
-	private static TabPaneBehavior getBehavior(final Tab tab)
-	{
-		return ((TabPaneSkin) tab.getTabPane().getSkin()).getBehavior();
+		final Event closeEvent = new Event(tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT);
+		Event.fireEvent(tab, closeEvent);
+		if (!closeEvent.isConsumed())
+		{
+			tabPane.getTabs().remove(tab);
+		}
 	}
 	
 

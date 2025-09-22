@@ -19,10 +19,6 @@
  */
 package pl.baczkowicz.mqttspy.connectivity.topicmatching;
 
-import io.moquette.spi.ISessionsStore.ClientTopicCouple;
-import io.moquette.spi.impl.subscriptions.Subscription;
-import io.moquette.spi.impl.subscriptions.SubscriptionsStore;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,29 +29,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for matching topics against subscriptions, and
- * figure out which subscription the message has been received for. It uses
- * moquette's SubscriptionStore to achieve that.
+ * figure out which subscription the message has been received for.
  */
 public class TopicMatcher
 {
 	/** Diagnostic logger. */
 	private static final Logger logger = LoggerFactory.getLogger(TopicMatcher.class);
 	
-	/** Subscription store - used to matching topics against subscriptions - from moquette. */
-	private SubscriptionsStore subscriptionsStore;
-	
 	/** All topics that are in the store. */
 	private Set<String> topics = new HashSet<>();
-	
-	/**
-	 * Creates the topic matcher.
-	 */
-	public TopicMatcher()
-	{
-		// Manage subscriptions, uses moquette's SubscriptionsStore
-		subscriptionsStore = new SubscriptionsStore();
-		subscriptionsStore.init(new MapBasedSubscriptionStore());
-	}
 	
 	/**
 	 * Returns matching subscriptions for the given topic.
@@ -66,17 +48,14 @@ public class TopicMatcher
 	 */
 	public List<String> getMatchingSubscriptions(final String topic)
 	{		
-		// Check matching subscription
-		final List<Subscription> matchingSubscriptions = subscriptionsStore.matches(topic);
-		
 		final List<String> matchingSubscriptionTopics = new ArrayList<String>();
-		
-		// For all found subscriptions
-		for (final Subscription matchingSubscription : matchingSubscriptions)
-		{						
-			matchingSubscriptionTopics.add(matchingSubscription.getTopicFilter());
-		}		
-
+		for (final String subscription : topics)
+		{
+			if (matches(subscription, topic))
+			{
+				matchingSubscriptionTopics.add(subscription);
+			}
+		}
 		return matchingSubscriptionTopics;
 	}
 
@@ -87,13 +66,9 @@ public class TopicMatcher
 	 */
 	public void addSubscriptionToStore(final String topic, final String clientId)
 	{
-		final ClientTopicCouple subscription = new ClientTopicCouple(clientId, topic);
-		
 		if (!topics.contains(topic))
 		{
 			logger.debug("Added subscription " + topic + " (" + clientId + ") to store");
-			// Store the subscription topic for further matching
-			subscriptionsStore.add(subscription);
 			topics.add(topic);
 		}
 	}
@@ -105,8 +80,33 @@ public class TopicMatcher
 	 */
 	public void removeSubscriptionFromStore(final String topic, final String clientId)
 	{
-		subscriptionsStore.removeSubscription(topic, clientId);
-		
 		topics.remove(topic);
+	}
+
+	private boolean matches(final String filter, final String topic)
+	{
+		final String[] filterLevels = filter.split("/");
+		final String[] topicLevels = topic.split("/");
+		int fi = 0;
+		int ti = 0;
+		while (fi < filterLevels.length)
+		{
+			final String filterLevel = filterLevels[fi];
+			if ("#".equals(filterLevel))
+			{
+				return true;
+			}
+			if (ti >= topicLevels.length)
+			{
+				return false;
+			}
+			if (!"+".equals(filterLevel) && !filterLevel.equals(topicLevels[ti]))
+			{
+				return false;
+			}
+			fi++;
+			ti++;
+		}
+		return ti == topicLevels.length;
 	}
 }

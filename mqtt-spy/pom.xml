@@ -20,11 +20,13 @@
 		<project.build.number>${buildNumber}</project.build.number>
 		
 		<timestamp>${maven.build.timestamp}</timestamp>
-   		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
-   		<maven.compiler.source>1.8</maven.compiler.source>
-    	<maven.compiler.target>1.8</maven.compiler.target>   	
-    	
-    	<jaxb2.plugin.version>0.12.1</jaxb2.plugin.version>
+		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>	
+		
+		<jaxb.version>2.3.0</jaxb.version>
+		<jaxb.runtime.version>2.3.0</jaxb.runtime.version>
+		<jaxb2.plugin.version>0.12.1</jaxb2.plugin.version>
 		<jaxb2.basics.version>0.11.1</jaxb2.basics.version>	
 	</properties>
 
@@ -130,6 +132,28 @@
 		
 		<plugins>
 		
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>set-system-properties</goal>
+						</goals>
+						<configuration>
+							<properties>
+								<property>
+									<name>com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize</name>
+									<value>true</value>
+								</property>
+							</properties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- Exclude files -->
 		    <plugin>
 		        <artifactId>maven-jar-plugin</artifactId>
@@ -332,6 +356,31 @@
 						<groupId>org.jvnet.jaxb2_commons</groupId>
 						<artifactId>jaxb2-value-constructor</artifactId>
 						<version>3.0</version>
+					</dependency>
+	    			<dependency>
+						<groupId>javax.xml.bind</groupId>
+						<artifactId>jaxb-api</artifactId>
+						<version>${jaxb.version}</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.activation</groupId>
+						<artifactId>javax.activation</artifactId>
+						<version>1.2.0</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-impl</artifactId>
+						<version>${jaxb.runtime.version}</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-core</artifactId>
+						<version>${jaxb.runtime.version}</version>
+					</dependency>
+	    			<dependency>
+						<groupId>com.sun.xml.bind</groupId>
+						<artifactId>jaxb-xjc</artifactId>
+						<version>${jaxb.runtime.version}</version>
 					</dependency>
 			    </dependencies>	    		    
 			</plugin> 

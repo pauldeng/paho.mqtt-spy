@@ -8,15 +8,17 @@
 	<name>mqtt-spy-common</name>
 	<url>https://github.com/eclipse/paho.mqtt-spy</url>
   
-  	<properties>
-  		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  		
-   		<timestamp>${maven.build.timestamp}</timestamp>
-   		
-   		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
-   		<maven.compiler.source>1.8</maven.compiler.source>
-    	<maven.compiler.target>1.8</maven.compiler.target>   		
-    	
-    	<jaxb2.plugin.version>0.12.1</jaxb2.plugin.version>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  		
+		<timestamp>${maven.build.timestamp}</timestamp>
+		
+		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>		
+		
+		<jaxb.version>2.3.0</jaxb.version>
+		<jaxb.runtime.version>2.3.0</jaxb.runtime.version>
+		<jaxb2.plugin.version>0.12.1</jaxb2.plugin.version>
 		<jaxb2.basics.version>0.11.1</jaxb2.basics.version>
 	</properties>
 
@@ -35,17 +37,6 @@
 		<repository>
 			<id>Eclipse Kura Repo</id>
 			<url>https://repo.eclipse.org/content/repositories/kura-releases/</url>
-		</repository>
-
-		<repository>
-			<id>bintray</id>
-			<url>http://dl.bintray.com/andsel/maven/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
 		</repository>
 
 	</repositories>
@@ -88,79 +79,6 @@
 			<version>1.0.9</version>	
 		</dependency> 
 				
-		<dependency>
-			<groupId>io.moquette</groupId>
-			<artifactId>moquette-broker</artifactId>
-			<version>0.8</version>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>hawtdb</artifactId>
-					<groupId>org.fusesource.hawtdb</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>hawtbuf</artifactId>
-					<groupId>org.fusesource.hawtbuf</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty-codec</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty-handler</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty-transport</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty-buffer</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty-common</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>org.osgi.compendium</artifactId>
-					<groupId>org.apache.felix</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>org.osgi.core</artifactId>
-					<groupId>org.apache.felix</groupId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.googlecode.disruptor</groupId>
-					<artifactId>disruptor</artifactId>					
-				</exclusion>
-				<exclusion>
-					<groupId>io.moquette</groupId>
-					<artifactId>moquette-netty-parser</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>HdrHistogram</artifactId>
-					<groupId>org.hdrhistogram</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>netty-codec-http</artifactId>
-					<groupId>io.netty</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
 		<!--=== SCHEMAS/JAXB === -->
 		
 	    <dependency>
@@ -225,11 +143,33 @@
 
 	</dependencies>
 	
-  <build>
+	  <build>
 
-    <plugins>
+	    <plugins>
 
-      		<!-- Generate JAXB clases -->			
+	      	<plugin>
+	      	    <groupId>org.codehaus.mojo</groupId>
+	      	    <artifactId>properties-maven-plugin</artifactId>
+	      	    <version>1.1.0</version>
+	      	    <executions>
+	      	        <execution>
+	      	            <phase>initialize</phase>
+	      	            <goals>
+	      	                <goal>set-system-properties</goal>
+	      	            </goals>
+	      	            <configuration>
+	      	                <properties>
+	      	                    <property>
+	      	                        <name>com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize</name>
+	      	                        <value>true</value>
+	      	                    </property>
+	      	                </properties>
+	      	            </configuration>
+	      	        </execution>
+	      	    </executions>
+	      	</plugin>
+
+  	    	<!-- Generate JAXB clases -->			
 	        <plugin>
 	            <groupId>org.jvnet.jaxb2_commons</groupId>
 	            <artifactId>jaxb2-basics</artifactId>
@@ -295,13 +235,38 @@
 			        </execution>	       
 			        			 
 			    </executions>		
-			    <dependencies>
+		    <dependencies>
 	    			<dependency>
-						<groupId>org.jvnet.jaxb2_commons</groupId>
-						<artifactId>jaxb2-value-constructor</artifactId>
-						<version>3.0</version>
-					</dependency>
-			    </dependencies>	    
+							<groupId>org.jvnet.jaxb2_commons</groupId>
+							<artifactId>jaxb2-value-constructor</artifactId>
+							<version>3.0</version>
+						</dependency>
+	    			<dependency>
+							<groupId>javax.xml.bind</groupId>
+							<artifactId>jaxb-api</artifactId>
+							<version>${jaxb.version}</version>
+						</dependency>
+	    			<dependency>
+							<groupId>com.sun.activation</groupId>
+							<artifactId>javax.activation</artifactId>
+							<version>1.2.0</version>
+						</dependency>
+	    			<dependency>
+							<groupId>com.sun.xml.bind</groupId>
+							<artifactId>jaxb-impl</artifactId>
+							<version>${jaxb.runtime.version}</version>
+						</dependency>
+	    			<dependency>
+							<groupId>com.sun.xml.bind</groupId>
+							<artifactId>jaxb-core</artifactId>
+							<version>${jaxb.runtime.version}</version>
+						</dependency>
+	    			<dependency>
+							<groupId>com.sun.xml.bind</groupId>
+							<artifactId>jaxb-xjc</artifactId>
+							<version>${jaxb.runtime.version}</version>
+						</dependency>
+				    </dependencies>	    
 			</plugin> 
 			 			
 	       <plugin>
