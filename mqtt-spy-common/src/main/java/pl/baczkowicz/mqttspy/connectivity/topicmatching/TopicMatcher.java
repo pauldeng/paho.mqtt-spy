@@ -19,94 +19,116 @@
  */
 package pl.baczkowicz.mqttspy.connectivity.topicmatching;
 
-import io.moquette.spi.ISessionsStore.ClientTopicCouple;
-import io.moquette.spi.impl.subscriptions.Subscription;
-import io.moquette.spi.impl.subscriptions.SubscriptionsStore;
-
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is responsible for matching topics against subscriptions, and
- * figure out which subscription the message has been received for. It uses
- * moquette's SubscriptionStore to achieve that.
+ * Performs MQTT topic to subscription matching without relying on the legacy
+ * moquette dependency that is no longer published. It keeps track of the
+ * registered subscription filters and evaluates MQTT wildcard rules locally.
  */
 public class TopicMatcher
 {
 	/** Diagnostic logger. */
 	private static final Logger logger = LoggerFactory.getLogger(TopicMatcher.class);
-	
-	/** Subscription store - used to matching topics against subscriptions - from moquette. */
-	private SubscriptionsStore subscriptionsStore;
-	
-	/** All topics that are in the store. */
-	private Set<String> topics = new HashSet<>();
-	
-	/**
-	 * Creates the topic matcher.
-	 */
-	public TopicMatcher()
-	{
-		// Manage subscriptions, uses moquette's SubscriptionsStore
-		subscriptionsStore = new SubscriptionsStore();
-		subscriptionsStore.init(new MapBasedSubscriptionStore());
-	}
-	
+
+	/** All topics that are currently registered for matching. */
+	private final Set<String> topics = new LinkedHashSet<>();
+
 	/**
 	 * Returns matching subscriptions for the given topic.
-	 * 
+	 *
 	 * @param topic The topic to get active subscriptions for
-	 * 
+	 *
 	 * @return List of subscription topics matching the given topic
 	 */
 	public List<String> getMatchingSubscriptions(final String topic)
-	{		
-		// Check matching subscription
-		final List<Subscription> matchingSubscriptions = subscriptionsStore.matches(topic);
-		
-		final List<String> matchingSubscriptionTopics = new ArrayList<String>();
-		
-		// For all found subscriptions
-		for (final Subscription matchingSubscription : matchingSubscriptions)
-		{						
-			matchingSubscriptionTopics.add(matchingSubscription.getTopicFilter());
-		}		
+	{
+		final List<String> matchingSubscriptionTopics = new ArrayList<>();
+
+		for (final String filter : topics)
+		{
+			if (matches(filter, topic))
+			{
+				matchingSubscriptionTopics.add(filter);
+			}
+		}
 
 		return matchingSubscriptionTopics;
 	}
 
 	/**
-	 * Adds the given topic to the subscription store - used for topic to subscription matching.
-	 *  
-	 * @param topic Topic to add
+	 * Adds the given topic to the store - used for topic to subscription matching.
+	 *
+	 * @param topic Topic filter to add
 	 */
 	public void addSubscriptionToStore(final String topic, final String clientId)
 	{
-		final ClientTopicCouple subscription = new ClientTopicCouple(clientId, topic);
-		
-		if (!topics.contains(topic))
+		if (topics.add(topic))
 		{
 			logger.debug("Added subscription " + topic + " (" + clientId + ") to store");
-			// Store the subscription topic for further matching
-			subscriptionsStore.add(subscription);
-			topics.add(topic);
 		}
 	}
-	
+
 	/**
-	 * Removes the given topic from the subscription store - used for topic to subscription matching.
-	 *  
-	 * @param topic Topic to remove
+	 * Removes the given topic from the store - used for topic to subscription matching.
+	 *
+	 * @param topic Topic filter to remove
 	 */
 	public void removeSubscriptionFromStore(final String topic, final String clientId)
 	{
-		subscriptionsStore.removeSubscription(topic, clientId);
-		
-		topics.remove(topic);
+		if (topics.remove(topic))
+		{
+			logger.debug("Removed subscription " + topic + " (" + clientId + ") from store");
+		}
+	}
+
+	private boolean matches(final String filter, final String topic)
+	{
+		if (Objects.equals(filter, topic))
+		{
+			return true;
+		}
+
+		if (filter == null || topic == null)
+		{
+			return false;
+		}
+
+		final String[] filterLevels = filter.split("/", -1);
+		final String[] topicLevels = topic.split("/", -1);
+
+		int topicIndex = 0;
+		for (int filterIndex = 0; filterIndex < filterLevels.length; filterIndex++)
+		{
+			final String filterLevel = filterLevels[filterIndex];
+
+			if ("#".equals(filterLevel))
+			{
+				return true;
+			}
+
+			if (topicIndex >= topicLevels.length)
+			{
+				return false;
+			}
+
+			final String topicLevel = topicLevels[topicIndex];
+
+			if (!"+".equals(filterLevel) && !filterLevel.equals(topicLevel))
+			{
+				return false;
+			}
+
+			topicIndex++;
+		}
+
+		return topicIndex == topicLevels.length;
 	}
 }
