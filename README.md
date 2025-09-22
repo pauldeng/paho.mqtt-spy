@@ -2,6 +2,13 @@
 
 Welcome to the Eclipse Paho mqtt-spy source code repository.
 
+## How to compile it under JDK25
+
+- Install full jdk from https://bell-sw.com/pages/downloads/#jdk-25-lts
+- Install maven
+- Comipled by `mvn clean package -DskipTests`
+- Run by `java -jar mqtt-spy-1.0.1-beta-b4-jar-with-dependencies.jar`
+
 For more information on the available functionality, see the project's wiki at https://github.com/eclipse/paho.mqtt-spy/wiki.
 
 The branching model aims to be as follows*:
