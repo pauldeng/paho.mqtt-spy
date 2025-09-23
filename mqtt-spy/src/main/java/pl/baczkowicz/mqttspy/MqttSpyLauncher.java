@@ -102,17 +102,17 @@ public final class MqttSpyLauncher
 		{
 			t.printStackTrace(System.err);
 		}
-		try (PrintWriter writer = new PrintWriter(new FileWriter("mqttspy-launch-debug.log", true)))
-		{
-			writer.println(fullMessage);
-			if (t != null)
-			{
-				t.printStackTrace(writer);
-			}
-		}
-		catch (IOException ignored)
-		{
-			System.err.println("[mqtt-spy] Failed to write log file: " + ignored);
-		}
+		// try (PrintWriter writer = new PrintWriter(new FileWriter("mqttspy-launch-debug.log", true)))
+		// {
+		// 	writer.println(fullMessage);
+		// 	if (t != null)
+		// 	{
+		// 		t.printStackTrace(writer);
+		// 	}
+		// }
+		// catch (IOException ignored)
+		// {
+		// 	System.err.println("[mqtt-spy] Failed to write log file: " + ignored);
+		// }
 	}
 }
