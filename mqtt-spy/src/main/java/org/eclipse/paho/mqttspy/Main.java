@@ -23,6 +23,6 @@ public class Main
 {
 	public static void main(String[] args) 
 	{
-		pl.baczkowicz.mqttspy.Main.main(args);
+		pl.baczkowicz.mqttspy.MqttSpyLauncher.main(args);
 	}
 }
