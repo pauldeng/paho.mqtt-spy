@@ -22,12 +22,12 @@ public final class MqttSpyLauncher
 	public static void main(String[] args)
 	{
 		System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-		System.setProperty("javafx.verbose", "true");
-		System.setProperty("javafx.launcher.debug", "true");
-		System.setProperty("prism.verbose", "true");
+		System.setProperty("javafx.verbose", "false");
+		System.setProperty("javafx.launcher.debug", "false");
+		System.setProperty("prism.verbose", "false");
 
 		detectAndSetJavaFxPlatform();
-		printRuntimeProbe();
+		//printRuntimeProbe();
 		try
 		{
 			LauncherImpl.launchApplication(Main.class, args);

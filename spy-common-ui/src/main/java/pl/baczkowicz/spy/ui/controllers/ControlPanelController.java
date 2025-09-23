@@ -193,23 +193,23 @@ public class ControlPanelController extends AnchorPane implements Initializable
 			@Override
 			public void run()
 			{
-				try
-				{
-					versionManager.setLoading(true);
+				// try
+				// {
+				// 	versionManager.setLoading(true);
 					
-					// Wait some time for the app to start properly
-					ThreadingUtils.sleep(5000);					
+				// 	// Wait some time for the app to start properly
+				// 	ThreadingUtils.sleep(5000);					
 					
-					final SpyVersions versions = versionManager.loadVersions();
+				// 	final SpyVersions versions = versionManager.loadVersions();
 					
-					logger.debug("Retrieved version info = " + versions.toString());
-					eventBus.publish(new VersionInfoReceivedEvent(versions));
-				}
-				catch (final XMLException e)
-				{
-					// If an error occurred					
-					eventBus.publish(new VersionInfoErrorEvent(e));			
-				}
+				// 	logger.debug("Retrieved version info = " + versions.toString());
+				// 	eventBus.publish(new VersionInfoReceivedEvent(versions));
+				// }
+				// catch (final XMLException e)
+				// {
+				// 	// If an error occurred					
+				// 	eventBus.publish(new VersionInfoErrorEvent(e));			
+				// }
 			}
 		}).start();		
 			

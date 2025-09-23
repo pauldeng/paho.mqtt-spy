@@ -78,11 +78,11 @@ public class MqttStatsFileIO implements StatsIO
 		}
 		catch (XMLException e)
 		{
-			logger.error("Cannot process the statistics file at " + statsFile.getAbsolutePath(), e);
+			logger.info("Cannot process the statistics file at " + statsFile.getAbsolutePath(), e);
 		}
 		catch (FileNotFoundException e)
 		{
-			logger.error("Cannot read the statistics file from " + statsFile.getAbsolutePath(), e);
+			logger.info("Cannot read the statistics file from " + statsFile.getAbsolutePath(), e);
 		}
 		
 		// If reading the stats failed...
